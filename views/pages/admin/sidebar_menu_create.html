@@ -1,0 +1,213 @@
+<!--  -->
+(% template "components/admin/sidebar" .%)
+<!--  -->
+(% template "components/admin/header_area" .%)
+<!--  -->
+(% template "components/admin/header_profile" .%)
+<!--  -->
+<style>
+    .input-group-text {
+        background-color: #343e50;
+        border: 1px solid #343e50;
+        color: #ffffff;
+    }
+    
+    .btn-light {
+        background-color: #343e50;
+        border-color: #343e50;
+        color: #fff;
+        transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+    }
+    
+    .btn-light:hover,
+    .btn-light:focus,
+    .btn-light:active {
+        background-color: #343e50;
+        border-color: #343e50;
+        color: #fff;
+    }
+    
+    .btn-light:active {
+        background-color: #315b7d !important;
+        border-color: #315b7d !important;
+        color: #fff !important;
+    }
+    
+    .table th {
+        background-color: #343e50;
+        color: #ffffff;
+    }
+</style>
+<div class="main-content-inner" id="pages_sidebar_menu_create">
+    <div class="sales-report-area mt-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <!--  -->
+                <div class="content">
+                    <form @submit.prevent="onSubmitFormSidebarMenuCreate" method="post">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group input-group-sm mb-2" id="master_icon_select2">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon1">ไอคอน</span>
+                                    </div>
+                                    <select class="custom-select i-select2" v-model="form.icon_id">
+                                        <option v-for="icon in components.icons" :key="icon.id" :value="icon.id">{{ icon.icon_name }}</option>
+                                    </select>
+                                </div>
+                                <div class="input-group input-group-sm mb-2">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon1">ชื่อเมนูหลัก</span>
+                                    </div>
+                                    <input type="text" class="form-control" v-model="form.sidebar_name">
+                                </div>
+                                <div class="input-group input-group-sm mb-3 ">
+                                    <div class="table-responsive ">
+                                        <div class="col-12 col-md-12 d-flex justify-content-end">
+                                            <div class="btn-add">
+                                                <button type="button" class="btn btn-light btn-sm" @click="addRow">
+                                                    <i class="fa fa-plus"></i> ชื่อเมนูย่อย
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <table class="table table-sm table-bordered">
+                                            <thead>
+                                                <tr style="text-align: center;">
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">ชื่อเมนูย่อย</th>
+                                                    <th scope="col">เส้นทาง</th>
+                                                    <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="show-rows">
+                                                <tr v-for="(row, index) in components.rows" :key="index">
+                                                    <td scope="row" style="text-align: center;">{{ index + 1 }}</td>
+                                                    <td>
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control" v-model="form.sidebar_sub_name[index]" placeholder="ชื่อเมนูย่อย">
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control" v-model="form.sidebar_sub_url[index]" placeholder="เส้นทาง">
+                                                        </div>
+                                                    </td>
+                                                    <td style="text-align: center;">
+                                                        <button type="button" class="btn btn-danger btn-sm" @click="deleteRow(index)">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- btn submit -->
+                        <div class="row ">
+                            <div class="col-6 col-md-12 d-flex justify-content-end">
+                                <div class="btn-submit">
+                                    <button type="submit" class="btn btn-dark btn-sm" id="btn-submit">บันทึก</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- btn submit -->
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    createApp({
+        data() {
+            return {
+                form: {
+                    icon_id: 0,
+                    sidebar_name: "",
+                    sidebar_sub_name: [],
+                    sidebar_sub_url: []
+                },
+                components: {
+                    icons: [],
+                    rows: 0,
+                },
+            };
+        },
+        methods: {
+            addRow: function() {
+                this.components.rows++;
+                this.form.sidebar_sub_name.push("");
+                this.form.sidebar_sub_url.push("");
+            },
+            deleteRow: function(index) {
+                this.components.rows--;
+                this.form.sidebar_sub_name.splice(index, 1);
+                this.form.sidebar_sub_url.splice(index, 1);
+            },
+            handlerOptionIconAll: function() {
+                axios.get("(% config.base_url %)api/master/icon_all")
+                    .then(res => {
+                        if (res.status == 200) {
+                            this.components.icons = res.data.data
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    })
+            },
+            onSubmitFormSidebarMenuCreate: function() {
+                if (this.form.icon_id == 0) {
+                    Swal.fire({
+                        title: "เลือก icon sidebar",
+                        text: "",
+                        icon: "warning",
+                        timer: 1500
+                    });
+                    return;
+                }
+
+                if (this.form.sidebar_sub_name == "") {
+                    Swal.fire({
+                        title: "ชื่อเมนูหลัก",
+                        text: "",
+                        icon: "warning",
+                        timer: 1500
+                    });
+                    return;
+                }
+
+                const data = {
+                    icon_id: this.form.icon_id,
+                    sidebar_name: this.form.sidebar_name,
+                    sidebar_sub_name: this.form.sidebar_sub_name,
+                    sidebar_sub_url: this.form.sidebar_sub_url,
+                };
+
+                axios.post("(% config.base_url %)api/master/sidebar_menu_save", data)
+                    .then((res) => {
+                        if (res.status == 200) {
+                            Swal.fire({
+                                title: "เพิ่มข้อมูลสำเร็จ",
+                                text: "",
+                                icon: "success",
+                                timer: 1500,
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            },
+        },
+        mounted() {
+            this.handlerOptionIconAll();
+        },
+    }).mount('#pages_sidebar_menu_create');
+</script>
+
+(% template "components/admin/setting_menu" .%)

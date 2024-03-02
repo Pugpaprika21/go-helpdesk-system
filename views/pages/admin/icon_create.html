@@ -1,0 +1,101 @@
+(% template "components/admin/sidebar" .%)
+<!--  -->
+(% template "components/admin/header_area" .%)
+<!--  -->
+(% template "components/admin/header_profile" .%)
+<!--  -->
+<style>
+    .input-group-text {
+        background-color: #343e50;
+        border: 1px solid #343e50;
+        color: #ffffff;
+    }
+    
+    .btn-light {
+        background-color: #343e50;
+        border-color: #343e50;
+        color: #fff;
+        transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+    }
+    
+    .btn-light:hover,
+    .btn-light:focus,
+    .btn-light:active {
+        background-color: #343e50;
+        border-color: #343e50;
+        color: #fff;
+    }
+    
+    .btn-light:active {
+        background-color: #315b7d !important;
+        border-color: #315b7d !important;
+        color: #fff !important;
+    }
+</style>
+<div class="main-content-inner" id="pages_icon_create">
+    <div class="sales-report-area mt-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="content">
+                    <form @submit.prevent="onSubmitIconSave">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="input-group input-group-sm mb-2">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon1">ชื่อ icon</span>
+                                    </div>
+                                    <input type="text" class="form-control" v-model="icon_name">
+                                </div>
+                                <div class="input-group input-group-sm mb-2">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon1">tag icon</span>
+                                    </div>
+                                    <input type="text" class="form-control" v-model="icon_tag_html">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 col-md-12 d-flex justify-content-end">
+                                <div class="btn-submit">
+                                    <button type="submit" class="btn btn-dark btn-sm">บันทึก</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    createApp({
+        data() {
+            return {
+                icon_name: "",
+                icon_tag_html: ""
+            }
+        },
+        methods: {
+            onSubmitIconSave: function() {
+                axios.post("(%  config.base_url %)api/master/icon_save", {
+                        icon_name: this.icon_name,
+                        icon_tag_html: this.icon_tag_html
+                    })
+                    .then(res => {
+                        console.log(res);
+                        if (res.status === 200) {
+                            window.location.reload();
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    });
+            }
+        },
+        mounted() {
+
+        }
+    }).mount('#pages_icon_create');
+</script>
+
+(% template "components/admin/setting_menu" .%)

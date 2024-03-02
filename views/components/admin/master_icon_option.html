@@ -1,0 +1,37 @@
+<div class="input-group input-group-sm mb-2" id="master_icon_select2">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">ไอคอน</span>
+    </div>
+    <select class="custom-select i-select2" v-model="form.icon_id">
+        <option value="">เลือก</option>
+        <option v-for="icon in components.icons" :key="icon.ID" :value="icon.ID">{{ icon.IconName }}</option>
+    </select>
+</div>
+
+<script>
+    createApp({
+        data() {
+            return {
+                components: {
+                    icons: []
+                },
+            }
+        },
+        methods: {
+            getIconAll: function() {
+                axios.get("(% config.base_url %)api/master/icon_all")
+                    .then(res => {
+                        if (res.status == 200) {
+                            this.components.icons = res.data.data
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    })
+            }
+        },
+        mounted() {
+            this.getIconAll();
+        },
+    }).mount('#master_icon_select2')
+</script>

@@ -1,0 +1,164 @@
+<!--  -->
+(% template "components/admin/sidebar" .%)
+<!--  -->
+(% template "components/admin/header_area" .%)
+<!--  -->
+(% template "components/admin/header_profile" .%)
+<!--  -->
+<style>
+    .input-group-text {
+        background-color: #343e50;
+        border: 1px solid #343e50;
+        color: #ffffff;
+    }
+    
+    .btn-light {
+        background-color: #343e50;
+        border-color: #343e50;
+        color: #fff;
+        transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+    }
+    
+    .btn-light:hover,
+    .btn-light:focus,
+    .btn-light:active {
+        background-color: #343e50;
+        border-color: #343e50;
+        color: #fff;
+    }
+    
+    .btn-light:active {
+        background-color: #315b7d !important;
+        border-color: #315b7d !important;
+        color: #fff !important;
+    }
+    
+    .table th {
+        background-color: #343e50;
+        color: #ffffff;
+    }
+</style>
+<div class="main-content-inner" id="pages_sidebar_main_create">
+    <div class="sales-report-area mt-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <!--  -->
+                <div class="content">
+                    <form @submit.prevent="onSubmitFormSidebarMainCreate" method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group input-group-sm mb-2">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">โลโก้</span>
+                                    </div>
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="form.sidebar_logo" ref="fileInput" accept="image/*" @change="handleLogoChange">
+                                        <label class="custom-file-label" for="sidebar_logo">เลือกไฟล์</label>
+                                    </div>
+                                </div>
+                                <div class="input-group input-group-sm mb-2 ">
+                                    <div class="input-group-prepend ">
+                                        <span class="input-group-text" id="basic-addon1">สีพื้นหลัง</span>
+                                    </div>
+                                    <input type="color" class="form-control" id="sidebar_bg_color" v-model="form.sidebar_bg_color" style="width: 100px; height: 30px;">
+                                </div>
+                                <div class="input-group input-group-sm mb-2 ">
+                                    <div class="input-group-prepend ">
+                                        <span class="input-group-text" id="basic-addon1">สีตัวอักษร</span>
+                                    </div>
+                                    <input type="color" class="form-control" id="sidebar_text_color" v-model="form.sidebar_text_color" style="width: 100px; height: 30px;">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- btn submit -->
+                        <div class="row">
+                            <div class="col-6 col-md-12 d-flex justify-content-end">
+                                <div class="btn-submit">
+                                    <button type="submit" class="btn btn-dark btn-sm" id="btn-submit">บันทึก</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- btn submit -->
+                    </form>
+                    <div class="row" v-if="form.preview_img_url !== null && form.preview_img_url !== undefined">
+                        <div class="col-md-12">
+                            <div class="card mt-3" style="width: 18rem;">
+                                <img class="card-img-top preview-img" :src="form.preview_img_url" alt="Card image cap">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--  -->
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    createApp({
+        data() {
+            return {
+                form: {
+                    sidebar_logo: null,
+                    sidebar_bg_color: "",
+                    sidebar_text_color: "",
+                    preview_img_url: null,
+                },
+            };
+        },
+        methods: {
+            handleLogoChange(event) {
+                this.form.sidebar_logo = event.target.files[0];
+                this.previewImage();
+            },
+            previewImage() {
+                if (this.form.sidebar_logo) {
+                    let reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.form.preview_img_url = e.target.result;
+                    };
+                    reader.readAsDataURL(this.form.sidebar_logo);
+                }
+            },
+            onSubmitFormSidebarMainCreate() {
+                if (!this.form.sidebar_logo) {
+                    Swal.fire({
+                        title: "เพิ่มโลโก้ sidebar",
+                        text: "",
+                        icon: "warning",
+                        timer: 1500
+                    });
+                    return;
+                }
+
+                const fd = new FormData();
+                fd.append("sidebar_logo", this.form.sidebar_logo);
+                fd.append("sidebar_bg_color", this.form.sidebar_bg_color);
+                fd.append("sidebar_text_color", this.form.sidebar_text_color);
+
+                axios.post("(% config.base_url %)api/master/sidebar_main_save", fd, {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    })
+                    .then(res => {
+                        if (res.status === 200) {
+                            Swal.fire({
+                                title: "เพิ่มข้อมูลสำเร็จ",
+                                text: "",
+                                icon: "success",
+                                timer: 1500
+                            }).then((result) => {
+                                this.$refs.fileInput.value = null;
+                                window.location.reload();
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Upload error:", error);
+                    });
+            },
+        },
+    }).mount('#pages_sidebar_main_create');
+</script>
+
+(% template "components/admin/setting_menu" .%)

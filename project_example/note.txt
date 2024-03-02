@@ -1,0 +1,11 @@
+https://github.com/gofiber/template
+
+menus (ตารางหลัก):
+id (Primary Key): รหัสเมนู
+name: ชื่อเมนู (เช่น "Dashboard", "Home" เป็นต้น)
+
+submenus (ตารางย่อย):
+id (Primary Key): รหัส Submenu
+menu_id (Foreign Key): รหัสของเมนูที่เกี่ยวข้อง (Foreign Key ไปที่ menus ตาราง)
+name: ชื่อ Submenu
+url: URL ของ Submenu

@@ -1,0 +1,104 @@
+<style>
+    .menu-inner nav .metismenu li {
+        text-decoration: underline;
+    }
+    
+    .menu-inner nav .metismenu li:hover {
+        text-decoration: none;
+    }
+</style>
+
+<div class="sidebar-menu" id="components_sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <a href="index.html"><img src="../assets/images/icon/logo.png" alt="logo"></a>
+        </div>
+    </div>
+    <div class="main-menu">
+        <div class="menu-inner">
+            <nav>
+                <ul class="metismenu" id="menu">
+                    <li class="active">
+                        <a href="javascript:void(0)" aria-expanded="true">
+                            <i class="fa fa-bars"></i><span>จัดการเมนู sidebar</span>
+                        </a>
+                        <ul class="collapse">
+                            <li class="active">
+                                <a href="(% config.base_url %)web/master/sidebar_main_create">จัดการ sidebar
+                                    หลัก</a>
+                            </li>
+                            <li class="active">
+                                <a href="(% config.base_url %)web/master/sidebar_menu_create">เพิ่มเมนู
+                                    sidebar</a>
+                            </li>
+                            <li class="active">
+                                <a href="">ลบ sidebar</a>
+                            </li>
+                            <li class="active">
+                                <a href="">แก้ไข sidebar</a>
+                            </li>
+                            <li class="active">
+                                <a href="">แสดงรายการ sidebar</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="active">
+                        <a href="javascript:void(0)" aria-expanded="true">
+                            <i class="ti-slice"></i><span>จัดการ icon</span>
+                        </a>
+                        <ul class="collapse">
+                            <li class="active">
+                                <a href="(% config.base_url %)web/master/icon_create">เพิ่ม icon</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="active" v-for="sidebar in components.sidebars" :key="sidebar.id">
+                        <a href="javascript:void(0)" aria-expanded="true">
+                            <span v-html="sidebar.sidebar_icon" style="margin-left: 0px"></span>
+                            <span>{{ sidebar.sidebar_name }}</span>
+                        </a>
+                        <ul class="collapse">
+                            <li class="active" v-for="subSidebar in sidebar.sidebar_subs" :key="subSidebar.id">
+                                <a :href="`(% config.base_url %)web/page/${subSidebar.sidebar_sub_url}`">
+                                    {{ subSidebar.sidebar_sub_name }}
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script>
+    createApp({
+        data() {
+            return {
+                components: {
+                    sidebars: []
+                },
+            }
+        },
+        methods: {
+            getSidebarLogo: function() {
+
+            },
+            getSidebars: function() {
+                axios.get("(% config.base_url %)api/master/sidebar_all")
+                    .then(res => {
+                        if (res.status == 200) {
+                            this.components.sidebars = res.data.data;
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    })
+            },
+        },
+        mounted() {
+            this.getSidebarLogo();
+            this.getSidebars();
+        },
+    }).mount('#components_sidebar')
+</script>

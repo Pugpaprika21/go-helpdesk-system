@@ -1,0 +1,249 @@
+(% template "components/admin/sidebar" .%)
+<!--  -->
+(% template "components/admin/header_area" .%)
+<!--  -->
+(% $page_title := "ฟอร์มบันทึกการแจ้งซ่อม" %)
+<!--  -->
+(% template "components/admin/header_profile" $page_title %)
+
+<style>
+    .input-group-text {
+        background-color: #343e50;
+        border: 1px solid #343e50;
+        color: #ffffff;
+    }
+    
+    .btn-light {
+        background-color: #343e50;
+        border-color: #343e50;
+        color: #fff;
+        transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+    }
+    
+    .btn-light:hover,
+    .btn-light:focus,
+    .btn-light:active {
+        background-color: #343e50;
+        border-color: #343e50;
+        color: #fff;
+    }
+    
+    .btn-light:active {
+        background-color: #315b7d !important;
+        border-color: #315b7d !important;
+        color: #fff !important;
+    }
+    
+    .table th {
+        background-color: #343e50;
+        color: #ffffff;
+    }
+    
+    select.form-control:not([size]):not([multiple]) {
+        height: calc(2.25rem + 6px);
+    }
+</style>
+<!--  -->
+<div class="main-content-inner" id="repair_form_save">
+    <div class="sales-report-area mt-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="content">
+                    <!-- form -->
+                    <form @submit.prevent="onSubmitRepairFormSave" method="post" enctype="multipart/form-data">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="inputEmail4">หมายเลขเครื่อง/เลขทะเบียน</label>
+                                <input type="text" class="form-control" v-model="form.equipment_regis_num" placeholder="หมายเลขเครื่อง/เลขทะเบียน">
+                            </div>
+
+                            (% template "components/admin/master_equipment_category_option" .%)
+
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label for="inputCity">ยี่ห้อ</label>
+                                <input type="text" class="form-control" v-model="form.equipment_brand" placeholder="ยี่ห้อ">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label for="exampleFormControlTextarea1">รายละเอียดการแจ้งซ่อม</label>
+                                <textarea class="form-control" v-model="form.equipment_detail" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="form.equipment_save_imgs" ref="fileInput" accept="image/*" multiple @change="onHandleEquipmentImgChange">
+                                    <label class="custom-file-label" for="inputGroupFile02">เเนบรายละเอียดภาพ</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- btn submit -->
+                        <br>
+                        <div class="row ">
+                            <div class="col-6 col-md-12 d-flex justify-content-end">
+                                <div class="btn-submit">
+                                    <button type="submit" class="btn btn-dark btn-sm" id="btn-submit">บันทึก</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- btn submit -->
+                    </form>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card mt-2" v-for="(url, index) in form.preview_img_urls" :key="index" style="width: 18rem;">
+                                <img class="card-img-top preview-img" :src="url" alt="Card image cap" style="width: 50%; height: 50%;">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- form -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    createApp({
+        data() {
+            return {
+                form: {
+                    equipment_regis_num: "",
+                    equipment_category_id: 0,
+                    equipment_category: "",
+                    equipment_type: "",
+                    equipment_brand: "",
+                    equipment_detail: "",
+                    equipment_save_imgs: [],
+                    preview_img_urls: [],
+                },
+                components: {
+                    masterEquipmentCategoryOptions: []
+                }
+            };
+        },
+        methods: {
+            onRenderMasterEquipmentCategoryOption: function() {
+                axios.get("(% config.base_url %)api/master/get_equipment_category_list")
+                    .then(res => {
+                        if (res.status == 200) {
+                            this.components.masterEquipmentCategoryOptions = res.data.data;
+                        }
+                        console.log(res)
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    })
+            },
+            onHandleEquipmentImgChange: function(event) {
+                this.form.equipment_save_imgs = [];
+                this.form.preview_img_urls = [];
+                for (let i = 0; i < event.target.files.length; i++) {
+                    this.form.equipment_save_imgs.push(event.target.files[i]);
+                }
+                this.onPreviewImages();
+            },
+            onPreviewImages: function() {
+                for (let i = 0; i < this.form.equipment_save_imgs.length; i++) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.form.preview_img_urls.push(e.target.result);
+                    };
+                    reader.readAsDataURL(this.form.equipment_save_imgs[i]);
+                }
+            },
+            onSubmitRepairFormSave: function() {
+                if (this.form.equipment_regis_num == "") {
+                    Swal.fire({
+                        title: "หมายเลขเครื่อง/เลขทะเบียน",
+                        text: "",
+                        icon: "warning",
+                        timer: 1500
+                    });
+                    return;
+                }
+
+                if (this.form.equipment_category_id == 0) {
+                    Swal.fire({
+                        title: "หมวดหมู่",
+                        text: "",
+                        icon: "warning",
+                        timer: 1500
+                    });
+                    return;
+                }
+
+                if (this.form.equipment_brand == "") {
+                    Swal.fire({
+                        title: "ยี่ห้อ",
+                        text: "",
+                        icon: "warning",
+                        timer: 1500
+                    });
+                    return;
+                }
+
+                if (this.form.equipment_detail == "") {
+                    Swal.fire({
+                        title: "รายละเอียดการแจ้งซ่อม",
+                        text: "",
+                        icon: "warning",
+                        timer: 1500
+                    });
+                    return;
+                }
+
+                if (this.form.equipment_save_imgs.length == 0) {
+                    Swal.fire({
+                        title: "เลือกไฟล์",
+                        text: "",
+                        icon: "warning",
+                        timer: 1500
+                    });
+                    return;
+                }
+
+                const fd = new FormData();
+                fd.append("equipment_regis_num", this.form.equipment_regis_num);
+                fd.append("equipment_category_id", this.form.equipment_category_id);
+                fd.append("equipment_brand", this.form.equipment_brand);
+                fd.append("equipment_category", this.form.equipment_category);
+                fd.append("equipment_type", this.form.equipment_type);
+                fd.append("equipment_detail", this.form.equipment_detail);
+
+                for (let i = 0; i < this.form.equipment_save_imgs.length; i++) {
+                    fd.append("equipment_save_imgs", this.form.equipment_save_imgs[i]);
+                }
+
+                axios.post("(% config.base_url %)api/repair/repair_save", fd, {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    })
+                    .then(res => {
+                        if (res.status == 200) {
+                            Swal.fire({
+                                title: "เพิ่มข้อมูลสำเร็จ",
+                                text: "",
+                                icon: "success",
+                                timer: 1500,
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error("", error);
+                    });
+            },
+        },
+        mounted() {
+            this.onRenderMasterEquipmentCategoryOption();
+        },
+    }).mount("#repair_form_save");
+</script>
+
+(% template "components/admin/setting_menu" .%)

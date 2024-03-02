@@ -1,0 +1,133 @@
+(% template "components/admin/sidebar" .%)
+<!--  -->
+(% template "components/admin/header_area" .%)
+<!--  -->
+(% $page_title := "จัดการหมวดหมู่อุปกรณ์" %)
+<!--  -->
+(% template "components/admin/header_profile" $page_title %)
+
+<div class="main-content-inner" id="master_equipment_category_manage">
+    <div class="sales-report-area mt-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="content">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="nav-content">
+                                <ul class="nav nav-tabs justify-content-end" id="myTab" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">เพิ่มหมวดหมู่อุปกรณ์</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">รายการหมวดหมู่อุปกรณ์</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="myTabContent">
+                                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <!-- form -->
+                                                <form @submit.prevent="onSubmitMasterEquipmentCategoryManageCreate" method="post" enctype="multipart/form-data">
+                                                    <div class="form-row mt-3">
+                                                        <div class="form-group col-md-12">
+                                                            <label for="inputEmail4">ชื่อหมวดหมู่อุปกรณ์</label>
+                                                            <input type="text" class="form-control" v-model="form.equipment_name_category" placeholder="หมวดหมู่อุปกรณ์">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-row">
+                                                        <div class="form-group col-md-12">
+                                                            <label for="inputPassword4">code หมวดหมู่อุปกรณ์</label>
+                                                            <input type="text" class="form-control" v-model="form.equipment_code_category" placeholder="code หมวดหมู่อุปกรณ์">
+                                                        </div>
+                                                    </div>
+                                                    <!-- btn submit -->
+                                                    <br>
+                                                    <div class="row ">
+                                                        <div class="col-6 col-md-12 d-flex justify-content-end">
+                                                            <div class="btn-submit">
+                                                                <button type="submit" class="btn btn-dark btn-sm" id="btn-submit">บันทึก</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- btn submit -->
+                                                </form>
+                                                <!-- form -->
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
+                                    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    createApp({
+        data() {
+            return {
+                form: {
+                    equipment_name_category: "",
+                    equipment_code_category: "",
+                },
+            };
+        },
+        methods: {
+            onSubmitMasterEquipmentCategoryManageCreate: function() {
+                if (this.form.equipment_name_category == "") {
+                    Swal.fire({
+                        title: "กรอกชื่อหมวดหมู่อุปกรณ์",
+                        text: "",
+                        icon: "warning",
+                        timer: 1500
+                    });
+                    return;
+                }
+
+                if (this.form.equipment_code_category == "") {
+                    Swal.fire({
+                        title: "กรอก code หมวดหมู่อุปกรณ์ ",
+                        text: "",
+                        icon: "warning",
+                        timer: 1500
+                    });
+                    return;
+                }
+
+                axios.post("(% config.base_url %)api/master/equipment_category_save", {
+                        equipment_name_category: this.form.equipment_name_category,
+                        equipment_code_category: this.form.equipment_code_category,
+                    })
+                    .then(res => {
+                        if (res.status === 200) {
+                            Swal.fire({
+                                title: "เพิ่มข้อมูลสำเร็จ",
+                                text: "",
+                                icon: "success",
+                                timer: 1500
+                            }).then((result) => {
+                                window.location.reload();
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    })
+                console.log(this.form.equipment_name_category, this.form.equipment_code_category);
+            },
+        },
+        mounted() {
+
+        },
+    }).mount("#master_equipment_category_manage");
+</script>
+
+(% template "components/admin/setting_menu" .%)

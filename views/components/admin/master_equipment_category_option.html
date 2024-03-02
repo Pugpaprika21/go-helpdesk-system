@@ -1,0 +1,10 @@
+<div class="form-group col-md-6">
+    <label for="inputState">หมวดหมู่</label>
+    <select id="inputState" class="form-control" v-model="form.equipment_category_id">
+    <option value="0" :selected="!form.equipment_category_id">เลือก</option>
+    <option v-for="category in components.masterEquipmentCategoryOptions" :key="category.id" :value="category.id"
+      :selected="form.equipment_category_id === category.id">
+      {{ category.equipmentNameCategory }}
+    </option>
+  </select>
+</div>
